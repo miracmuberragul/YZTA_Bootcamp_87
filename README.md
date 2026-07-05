@@ -65,7 +65,7 @@ KOBİ'lerde kurumsal bilgi; e-postalarda, paylaşılan dosyalarda, Excel tablola
 
 ## Product Backlog URL
 
-[Trello Backlog Board]([TRELLO_LINK_BURAYA])
+[Trello Backlog Board]([https://trello.com/b/Wp6Zx63c/officeiq-yzta])
 
 ---
 
@@ -83,14 +83,14 @@ Backlog bu sprint için fikir araştırması, rakip analizi, mimari planlama ve 
 
 Daily Scrum toplantıları zaman farklılıkları nedeniyle Slack üzerinden gerçekleştirildi. Günlük olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlar yapıldı.
 
-![Daily Scrum 1](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily1.png?raw=true" width="100"/>)
-![Daily Scrum 2](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily2.png?raw=true" width="100"/>)
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/daily1.png" width="150"/>
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/daily2.png" width="150"/>
 
 
 ## Sprint Board Güncellemesi
 
-![Trello Board](https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/trello.png?raw=true)
-
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/trello.png" width="450"/>
 ## Ürün Durumu
 
 Sprint 1'de henüz kod geliştirme yapılmadı. Bu sprint'in çıktısı; ürün fikri seçimi, problem tanımı, hedef kitle analizi, rakip araştırması ve ilk mimari taslağıdır.
