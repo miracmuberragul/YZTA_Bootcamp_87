@@ -1,6 +1,6 @@
 # Grup 87
 
-**[OfficeIQ Grup 87]**
+**OfficeIQ Grup 87**
 
 ---
 
@@ -8,9 +8,9 @@
 
 ## Ekip
 
-- **[Mihrinur İlunt]** — Product Owner / Developer
-- **[Miraç Müberra Gül]** — Scrum Master / Developer
-- **[Ömer Can Gizik]** — Developer
+- **Mihrinur İlunt** — Product Owner / Developer
+- **Miraç Müberra Gül** — Scrum Master / Developer
+- **Ömer Can Gizik** — Developer
 
 ## Ürün İsmi
 
@@ -83,8 +83,9 @@ Backlog bu sprint için fikir araştırması, rakip analizi, mimari planlama ve 
 
 Daily Scrum toplantıları zaman farklılıkları nedeniyle Slack üzerinden gerçekleştirildi. Günlük olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlar yapıldı.
 
-![Daily Scrum 1](https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily1.png?raw=true)
-![Daily Scrum 2](https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily2.png?raw=true)
+![Daily Scrum 1](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily1.png?raw=true" width="400"/>)
+![Daily Scrum 2](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily2.png?raw=true" width="400"/>)
+
 
 ## Sprint Board Güncellemesi
 
