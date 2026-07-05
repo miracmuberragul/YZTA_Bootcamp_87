@@ -83,8 +83,8 @@ Backlog bu sprint için fikir araştırması, rakip analizi, mimari planlama ve 
 
 Daily Scrum toplantıları zaman farklılıkları nedeniyle Slack üzerinden gerçekleştirildi. Günlük olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlar yapıldı.
 
-![Daily Scrum 1](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily1.png?raw=true" width="400"/>)
-![Daily Scrum 2](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily2.png?raw=true" width="400"/>)
+![Daily Scrum 1](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily1.png?raw=true" width="100"/>)
+![Daily Scrum 2](<img src="https://github.com/miracmuberragul/YZTA_Bootcamp_87/blob/main/ProjectManagement/daily2.png?raw=true" width="100"/>)
 
 
 ## Sprint Board Güncellemesi
