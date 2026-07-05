@@ -14,7 +14,7 @@
 
 ## Ürün İsmi
 
-**Dijital Çalışan — AI Destekli Kurumsal Bilgi Asistanı**
+**OfficeIQ — AI Destekli Kurumsal Bilgi Asistanı**
 
 ## Ürün Açıklaması
 
@@ -75,13 +75,13 @@ KOBİ'lerde kurumsal bilgi; e-postalarda, paylaşılan dosyalarda, Excel tablola
 
 ## Backlog Düzeni ve Story Seçimleri
 
-Sprint 1'in temel odağı ürün fikrinin netleştirilmesi, problem tanımının yapılması ve teknik yönün belirlenmesiydi. Farklı sektörlerden (sağlık, finans, eğitim, KOBİ/kurumsal) çözüm fikirleri değerlendirildi; özgünlük, pazar potansiyeli ve 6 haftalık süre içinde uygulanabilirlik kriterlerine göre **"Şirketlerin Dijital Çalışanı"** fikri seçildi.
+Sprint 1'in temel odağı ürün fikrinin netleştirilmesi, problem tanımının yapılması ve teknik yönün belirlenmesiydi. Farklı sektörlerden (sağlık, finans, eğitim, KOBİ/kurumsal) çözüm fikirleri değerlendirildi; özgünlük, pazar potansiyeli ve 6 haftalık süre içinde uygulanabilirlik kriterlerine göre **"OfficeIQ Şirketlerin Dijital Çalışanı"** fikri seçildi.
 
 Backlog bu sprint için fikir araştırması, rakip analizi, mimari planlama ve takım rollerinin belirlenmesi görevlerine göre düzenlendi. Story'ler yapılacak task'lere bölündü ve sprint kapasitesinin yarısını aşmayacak şekilde seçim yapıldı.
 
 ## Daily Scrum
 
-Daily Scrum toplantıları zaman farklılıkları nedeniyle Slack üzerinden gerçekleştirildi. Günlük olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlar yapıldı.
+Daily Scrum toplantıları zaman farklılıkları nedeniyle Slack üzerinden gerçekleştirildi. Vakit oldukça ne yapılabilir/nasıl gerçekleştirilebilir bu konuşuldu.
 
 <img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/daily1.png" width="150"/>
 
@@ -104,33 +104,30 @@ Sprint 1 çıktı özeti:
 - Hedef kitle (10–100 çalışanlı KOBİ) ve kullanıcı personaları netleştirildi
 - Microsoft Copilot, Glean, Guru, Notion AI rakipler analiz edildi; Türkiye KOBİ pazarındaki boşluk doğrulandı
 - SWOT analizi tamamlandı
-- Modüler monolit mimari kararı alındı
+- Mikroservis mimari kararı alındı (4 servis: auth, document, ingestion, chat)
 - Teknoloji stack belirlendi (FastAPI + LangChain + pgvector + React)
 - API contract ve endpoint planı hazırlandı
 - Demo verisi stratejisi belirlendi (sentetik KOBİ dokümanları)
-
 ## Sprint Review
-
+ 
 **Alınan kararlar:**
 - Ürün olarak "Şirketlerin Dijital Çalışanı" (RAG tabanlı kurumsal bilgi asistanı) seçildi
-- Mimari tartışmasında mikroservis yerine **modüler monolit** yaklaşımına karar verildi; 30 günlük süre ve 3 aktif geliştirici göz önüne alındığında bu yaklaşımın riski önemli ölçüde azalttığı değerlendirildi
-- Teknoloji stack belirlendi: FastAPI + LangChain + pgvector + React
+- Mimari olarak **mikroservis** yapısına karar verildi: auth-service, document-service, ingestion-service, chat-service
+- Servisler arası iletişim senkron HTTP/REST ile sağlanacak; Nginx API Gateway kullanılacak
+- Teknoloji stack belirlendi: FastAPI + LangChain + pgvector + React + Docker Compose
 - Demo verisi için sentetik KOBİ dokümanları üretilmesine karar verildi
-- Sprint 2 kapsamı netleştirildi: PDF pipeline + temel RAG soru-cevap çalışır hale getirilecek
-
-Sprint Review katılımcıları: [İsimler]
-
+- Sprint 2 kapsamı netleştirildi: servis iskeletleri + auth + PDF pipeline
+Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Can Gizik
+ 
 ## Sprint Retrospective
-
+ 
 **İyi gidenler:**
 - Fikir seçim sürecinin hızlı tamamlanması ve net bir problem tanımına ulaşılması
-- Mimari kararın erken verilmesi sayesinde Sprint 2'ye temiz bir başlangıç yapılabilmesi
+- Mimari kararın ve API contract'ın Sprint 1'de netleştirilmesi sayesinde Sprint 2'ye temiz başlangıç
 - Pazar analizi ve rakip araştırmasının kapsamlı şekilde tamamlanması
-
 **Geliştirilebilecekler:**
 - Sprint 1'de resmi sprint board ve daily scrum pratiği tam oturtulamadı; Sprint 2'den itibaren Trello board aktif kullanılacak
 - Görev dağılımı Sprint 2 planning'de daha net tanımlanacak
-
 ---
 
 # Sprint 2
