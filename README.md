@@ -65,7 +65,7 @@ KOBİ'lerde kurumsal bilgi; e-postalarda, paylaşılan dosyalarda, Excel tablola
 
 ## Product Backlog URL
 
-[Trello Backlog Board]([https://trello.com/b/Wp6Zx63c/officeiq-yzta])
+[Trello Backlog Board](https://trello.com/b/Wp6Zx63c/officeiq-yzta)
 
 ---
 
