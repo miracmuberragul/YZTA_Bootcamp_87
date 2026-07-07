@@ -1,0 +1,1 @@
+# Shared response format placeholder
