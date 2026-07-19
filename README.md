@@ -134,3 +134,76 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 
 **Sprint 2 Tarihleri:** 6 Temmuz 2026 — 19 Temmuz 2026
 
+## Backlog Düzeni ve Story Seçimleri
+
+Sprint 2'nin odak noktası mimari kararların netleştirilmesi, proje altyapısının kurulması ve geliştirme sürecine hazırlık aşamalarının tamamlanmasıydı. Sprint başında tahmin edilen puan sayısını geçmeyecek şekilde sıradan seçimler yapıldı.
+
+Bu sprint kapsamında tamamlanan işler:
+
+- Sistem akışı 13 adım olarak tanımlandı (kayıt/giriş → token → belge yükleme → Document Service → Ingestion Service → parse → chunk → embedding → vektör DB kaydı → soru → Chat Service → LLM → frontend)
+- Klasör yapısı dev branch'e push'landı
+- Veri seti hazırlandı (Google Drive'daki şirket dokümanları kategorilere göre eşleştirildi)
+- Shared response format şeması belirlendi ve `shared/response_format.py` yazıldı
+- PostgreSQL veritabanı şeması ve tablo yapısı oluşturuldu
+- OfficeIQ arayüz tasarımı (UI/UX mockup) tamamlandı
+
+To Do listesindeki kartlar Sprint 3'e devredildi:
+
+- Auth service — temel iskelet
+- Document service — upload endpoint taslağı
+- Docker Compose iskeletinin kurulması
+- Ingestion service — PDF metin çıkarma PoC
+
+Story'ler yapılacak task'lere bölünmüştür. Trello Board'da gözüken yeşil item'lar tamamlanan işleri (Done), gri item'lar yapılacak işleri (To Do) temsil etmektedir.
+
+## Daily Scrum
+
+Daily Scrum toplantıları bu sprint boyunca Slack üzerinden gerçekleştirildi. Takım üyeleri günlük olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlarını iletti.
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/sprint2_foto1.png" width="500"/>
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/sprint2_foto2.png" width="500"/>
+
+## Sprint Board Güncellemesi
+
+Sprint 2 boyunca Trello board aktif olarak güncellendi. Done, To Do ve In Progress listeleri düzenli takip edildi.
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/trello_2.png" width="700"/>
+
+## Ürün Durumu
+
+Bu sprint'te aktif kod geliştirme yapılmadı; ancak ürünün temelini oluşturan mimari, veri ve tasarım çıktıları tamamlandı.
+
+**Veritabanı Şeması:**
+PostgreSQL kullanılarak `users`, `companies`, `documents`, `document_chunks`, `conversations`, `messages` tabloları tasarlandı. Tablo ilişkileri ve alanlar netleştirildi.
+
+**UI/UX Tasarımı:**
+OfficeIQ ürün arayüzü tasarlandı. Dashboard ekranında toplam belge sayısı, soru-cevap istatistikleri, kategorilere göre belge dağılımı, son eklenen belgeler, son aktiviteler ve AI asistan paneli yer almaktadır.
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/design.png" width="700"/>
+
+## Sprint Review
+
+**Alınan kararlar:**
+
+- Sistem akış diyagramı 13 adım olarak netleştirildi ve tüm ekip tarafından onaylandı
+- İki farklı kullanıcı rolü belirlendi: **Admin** (şirket yetkilisi — belge yükleme ve yönetim) ve **Personel** (yalnızca soru sorma)
+- Her ekip üyesinin kendi branch'inde çalışması kararlaştırıldı; conflict'leri minimize etmek için servis bazlı branch stratejisi benimsendi
+- PostgreSQL şeması tamamlandı, Sprint 3'te migration ile hayata geçirilecek
+- UI tasarımı onaylandı, Sprint 3'te React ile kodlanmaya başlanacak
+- Sprint 3 kapsamı netleştirildi: auth service, document service upload, ingestion PoC, Docker Compose
+
+Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt
+
+## Sprint Retrospective
+
+**İyi gidenler:**
+- Sistem akışının net bir şekilde 13 adımda tanımlanması Sprint 3 geliştirmesini somutlaştırdı
+- Veritabanı şemasının erken tamamlanması servis geliştirmeye hızlı başlanmasını sağlayacak
+- UI tasarımının hazırlanması frontend geliştirme için net bir referans oluşturdu
+- Ekip içi iletişim Slack üzerinden düzenli sürdürüldü
+
+**Geliştirilebilecekler:**
+- Bu sprintte aktif kod geliştirme yapılamadı; Sprint 3'te geliştirme temposunun artırılması hedefleniyor
+- Branch stratejisi geç netleşti; Sprint 3'te her üye kendi servisinde baştan çalışacak
+- Docker Compose kurulumu Sprint 2'den Sprint 3'e devredildi, bu gecikme servis entegrasyonunu sıkıştırabilir; Sprint 3'ün ilk günleri bu göreve ayrılacak
