@@ -1,2 +1,138 @@
-version: '3.9'
-services: {}
+name: officeiq
+
+x-service-common: &service-common
+  restart: unless-stopped
+  environment:
+    DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+  depends_on:
+    postgres:
+      condition: service_healthy
+    migration:
+      condition: service_completed_successfully
+
+x-python-healthcheck: &python-healthcheck
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: officeiq
+      POSTGRES_USER: officeiq
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-officeiq_password}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U officeiq -d officeiq"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  migration:
+    build:
+      context: .
+      dockerfile: migrations/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  auth-service:
+    <<: *service-common
+    build: ./services/auth-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+      SECRET_KEY: ${SECRET_KEY:-development-only-change-me}
+    ports:
+      - "8000:8000"
+    healthcheck: *python-healthcheck
+
+  document-service:
+    <<: *service-common
+    build: ./services/document-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+      STORAGE_PATH: /storage
+    ports:
+      - "8001:8001"
+    volumes:
+      - document_storage:/storage
+    healthcheck:
+      <<: *python-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3)"]
+
+  ingestion-service:
+    <<: *service-common
+    build: ./services/ingestion-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+      EMBEDDING_MODEL: text-embedding-3-small
+      EMBEDDING_DIMENSION: "1536"
+    ports:
+      - "8002:8002"
+    volumes:
+      - document_storage:/storage
+    healthcheck:
+      <<: *python-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=3)"]
+
+  chat-service:
+    <<: *service-common
+    build: ./services/chat-service
+    environment:
+      DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "8003:8003"
+    healthcheck:
+      <<: *python-healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health', timeout=3)"]
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:5173/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  gateway:
+    build: ./gateway
+    restart: unless-stopped
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      document-service:
+        condition: service_healthy
+      ingestion-service:
+        condition: service_healthy
+      chat-service:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
+  document_storage:

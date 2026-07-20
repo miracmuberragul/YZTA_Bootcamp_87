@@ -1,1 +1,3 @@
-STORAGE_PATH = './app/storage'
+import os
+
+STORAGE_PATH = os.getenv("STORAGE_PATH", "/storage")
