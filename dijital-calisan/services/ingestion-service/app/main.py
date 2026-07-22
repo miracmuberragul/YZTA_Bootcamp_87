@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from app.database import database_is_ready
+from app.routers.ingestion_router import router as ingestion_router
 
 app = FastAPI(title='Ingestion Service')
+app.include_router(ingestion_router)
 
 @app.get('/health')
 def health():

@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import BigInteger, DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -24,12 +24,12 @@ class DocumentStatus(str, enum.Enum):
     processing = "processing"
     processed = "processed"
     failed = "failed"
+    deleting = "deleting"
     deleted = "deleted"
 
 
 class Document(Base):
     __tablename__ = "documents"
-    __table_args__ = (UniqueConstraint("company_id", "checksum_sha256", name="uq_documents_company_checksum"),)
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     company_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     uploaded_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
@@ -42,7 +42,9 @@ class Document(Base):
     category: Mapped[DocumentCategory] = mapped_column(Enum(DocumentCategory, name="document_category"), default=DocumentCategory.other)
     status: Mapped[DocumentStatus] = mapped_column(Enum(DocumentStatus, name="document_status"), default=DocumentStatus.uploading)
     page_count: Mapped[int | None] = mapped_column(Integer)
+    processing_error_code: Mapped[str | None] = mapped_column(String(100))
     processing_error_message: Mapped[str | None] = mapped_column(Text)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

@@ -63,6 +63,10 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
       STORAGE_PATH: /storage
+      MAX_UPLOAD_BYTES: "15728640"
+      INGESTION_SERVICE_URL: http://ingestion-service:8002
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-development-internal-key}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
     ports:
       - "8001:8001"
     volumes:
@@ -78,6 +82,7 @@ services:
       DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
       EMBEDDING_MODEL: text-embedding-3-small
       EMBEDDING_DIMENSION: "1536"
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-development-internal-key}
     ports:
       - "8002:8002"
     volumes:
