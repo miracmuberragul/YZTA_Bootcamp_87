@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/documents' })
+const api = axios.create({ baseURL: '/api/documents' })
 
 const authHeader = () => ({
     Authorization: `Bearer ${localStorage.getItem('token')}`,

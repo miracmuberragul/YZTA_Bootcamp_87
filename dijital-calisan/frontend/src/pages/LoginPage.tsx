@@ -18,7 +18,7 @@ export default function LoginPage() {
       const res = await authApi.login(form)
       const { access_token, user } = res.data
       login(access_token, user)
-      navigate('/dashboard')
+      window.location.href = '/dashboard'
     } catch (err: any) {
       setError(err.response?.data?.detail ?? 'Giriş başarısız.')
     } finally {
