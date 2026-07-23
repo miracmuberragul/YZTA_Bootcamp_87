@@ -25,7 +25,7 @@ def _tenant_document(db: Session, document_id: uuid.UUID, company_id: uuid.UUID,
     return document
 
 
-async def _create_ingestion_job(document: Document) -> None:
+async def _create_ingestion_job(document: Document) -> uuid.UUID:
     payload = {
         "document_id": str(document.id),
         "company_id": str(document.company_id),
@@ -41,8 +41,21 @@ async def _create_ingestion_job(document: Document) -> None:
                 headers={"X-Internal-API-Key": INTERNAL_API_KEY},
             )
             response.raise_for_status()
+            return uuid.UUID(response.json()["id"])
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=503, detail="Doküman kaydedildi ancak işleme kuyruğuna alınamadı. Tekrar deneyin.") from exc
+
+
+async def _trigger_ingestion_job(job_id: uuid.UUID) -> None:
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.post(
+                f"{INGESTION_SERVICE_URL}/internal/v1/ingestion/jobs/{job_id}/process",
+                headers={"X-Internal-API-Key": INTERNAL_API_KEY},
+            )
+            response.raise_for_status()
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=503, detail="Doküman kuyruğa alındı ancak işleme başlatılamadı.") from exc
 
 
 async def upload_document(
@@ -65,11 +78,12 @@ async def upload_document(
         delete_file(stored.storage_key)
         if existing.status == DocumentStatus.uploaded:
             try:
-                await _create_ingestion_job(existing)
+                job_id = await _create_ingestion_job(existing)
                 existing.status = DocumentStatus.queued
                 existing.processing_error_code = None
                 existing.processing_error_message = None
                 db.commit()
+                await _trigger_ingestion_job(job_id)
             except HTTPException:
                 pass
         return UploadResponse(
@@ -108,14 +122,16 @@ async def upload_document(
         return UploadResponse(document_id=existing.id, status=existing.status, status_url=f"/api/v1/documents/{existing.id}", duplicate=True)
 
     try:
-        await _create_ingestion_job(document)
+        job_id = await _create_ingestion_job(document)
         document.status = DocumentStatus.queued
         document.processing_error_code = None
         document.processing_error_message = None
         db.commit()
+        await _trigger_ingestion_job(job_id)
     except HTTPException:
+        document.status = DocumentStatus.failed
         document.processing_error_code = "INGESTION_UNAVAILABLE"
-        document.processing_error_message = "İşleme servisine ulaşılamadı. Tekrar deneyebilirsiniz."
+        document.processing_error_message = "İşleme servisine ulaşılamadı veya iş başlatılamadı. Tekrar deneyebilirsiniz."
         db.commit()
 
     return UploadResponse(document_id=document.id, status=document.status, status_url=f"/api/v1/documents/{document.id}")
@@ -160,12 +176,26 @@ def retry_ingestion(db: Session, auth: AuthContext, document_id: uuid.UUID) -> D
     try:
         response = httpx.post(f"{INGESTION_SERVICE_URL}/internal/v1/ingestion/jobs", json=payload, headers={"X-Internal-API-Key": INTERNAL_API_KEY}, timeout=5.0)
         response.raise_for_status()
+        job_id = uuid.UUID(response.json()["id"])
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=503, detail="İşleme servisine ulaşılamadı.") from exc
     document.status = DocumentStatus.queued
     document.processing_error_code = None
     document.processing_error_message = None
     db.commit()
+    try:
+        response = httpx.post(
+            f"{INGESTION_SERVICE_URL}/internal/v1/ingestion/jobs/{job_id}/process",
+            headers={"X-Internal-API-Key": INTERNAL_API_KEY},
+            timeout=5.0,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        document.status = DocumentStatus.failed
+        document.processing_error_code = "INGESTION_UNAVAILABLE"
+        document.processing_error_message = "İşleme işi başlatılamadı. Tekrar deneyebilirsiniz."
+        db.commit()
+        raise HTTPException(status_code=503, detail="İşleme işi başlatılamadı.") from exc
     return document
 
 

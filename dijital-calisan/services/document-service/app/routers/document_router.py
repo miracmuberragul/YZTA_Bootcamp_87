@@ -1,17 +1,33 @@
+import hmac
 import uuid
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.auth import AuthContext, get_auth_context, require_admin
+from app.config import INTERNAL_API_KEY
 from app.database import get_db
 from app.models.document import DocumentCategory, DocumentStatus
-from app.schemas.document_schema import DeleteResponse, DocumentListResponse, DocumentResponse, RetryResponse, UploadResponse
+from app.schemas.document_schema import (
+    DeleteResponse,
+    DocumentListResponse,
+    DocumentResponse,
+    ProcessingStatusUpdate,
+    RetryResponse,
+    UploadResponse,
+)
 from app.services.document_service import delete_document, get_document, list_documents, retry_ingestion, upload_document
 from app.services.storage_service import resolve_storage_key
 
 router = APIRouter(prefix="/api/v1/documents", tags=["Documents"])
+internal_router = APIRouter(prefix="/internal/v1/documents", tags=["Internal documents"])
+
+
+def verify_internal_api_key(x_internal_api_key: str = Header(default="")) -> None:
+    if not INTERNAL_API_KEY or not hmac.compare_digest(x_internal_api_key, INTERNAL_API_KEY):
+        raise HTTPException(status_code=401, detail="Geçersiz internal servis anahtarı.")
 
 
 @router.post("", response_model=UploadResponse, status_code=status.HTTP_202_ACCEPTED)
@@ -66,3 +82,39 @@ def retry(document_id: uuid.UUID, auth: AuthContext = Depends(require_admin), db
 def delete(document_id: uuid.UUID, auth: AuthContext = Depends(require_admin), db: Session = Depends(get_db)):
     document = delete_document(db, auth, document_id)
     return DeleteResponse(document_id=document.id, status=document.status)
+
+
+@internal_router.patch(
+    "/{document_id}/processing-status",
+    response_model=DocumentResponse,
+    dependencies=[Depends(verify_internal_api_key)],
+)
+def update_processing_status(document_id: uuid.UUID, request: ProcessingStatusUpdate, db: Session = Depends(get_db)):
+    document = get_document(db, document_id, request.company_id)
+    if document.status in {DocumentStatus.deleting, DocumentStatus.deleted}:
+        raise HTTPException(status_code=409, detail="Silinen dokümanın işleme durumu güncellenemez.")
+    allowed_from = {
+        "processing": {DocumentStatus.queued, DocumentStatus.processing, DocumentStatus.failed},
+        "processed": {DocumentStatus.processing},
+        "failed": {DocumentStatus.queued, DocumentStatus.processing, DocumentStatus.failed},
+    }
+    if document.status not in allowed_from[request.status]:
+        raise HTTPException(status_code=409, detail="Geçersiz doküman durum geçişi.")
+    if request.status == "processing":
+        document.status = DocumentStatus.processing
+        document.processing_error_code = None
+        document.processing_error_message = None
+    elif request.status == "processed":
+        document.status = DocumentStatus.processed
+        document.page_count = request.page_count
+        document.language = request.language
+        document.processed_at = datetime.now(timezone.utc)
+        document.processing_error_code = None
+        document.processing_error_message = None
+    else:
+        document.status = DocumentStatus.failed
+        document.processing_error_code = request.error_code
+        document.processing_error_message = request.error_message
+    db.commit()
+    db.refresh(document)
+    return document

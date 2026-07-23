@@ -22,7 +22,14 @@ class IngestionJobResponse(BaseModel):
     company_id: uuid.UUID
     status: IngestionStatus
     attempt_count: int
+    max_attempts: int
     idempotency_key: str
+    parser_version: str | None
+    chunker_version: str | None
+    error_code: str | None
+    error_message: str | None
+    started_at: datetime | None
+    finished_at: datetime | None
     created_at: datetime
 
 
@@ -30,3 +37,8 @@ class DeleteIngestionDataResponse(BaseModel):
     document_id: uuid.UUID
     deleted_jobs: int
     deleted_chunks: int
+
+
+class ProcessJobResponse(BaseModel):
+    job_id: uuid.UUID
+    status: IngestionStatus

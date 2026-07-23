@@ -83,6 +83,11 @@ services:
       EMBEDDING_MODEL: text-embedding-3-small
       EMBEDDING_DIMENSION: "1536"
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-development-internal-key}
+      STORAGE_PATH: /storage
+      DOCUMENT_SERVICE_URL: http://document-service:8001
+      TOKENIZER_MODEL: text-embedding-3-small
+      CHUNK_SIZE_TOKENS: "500"
+      CHUNK_OVERLAP_TOKENS: "75"
     ports:
       - "8002:8002"
     volumes:

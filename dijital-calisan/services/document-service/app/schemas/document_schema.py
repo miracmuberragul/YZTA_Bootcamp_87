@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,6 +18,7 @@ class DocumentResponse(BaseModel):
     category: DocumentCategory
     status: DocumentStatus
     page_count: int | None
+    language: str | None
     processing_error_code: str | None
     processing_error_message: str | None
     processed_at: datetime | None
@@ -47,3 +49,12 @@ class DeleteResponse(BaseModel):
 class RetryResponse(BaseModel):
     document_id: uuid.UUID
     status: DocumentStatus
+
+
+class ProcessingStatusUpdate(BaseModel):
+    company_id: uuid.UUID
+    status: Literal["processing", "processed", "failed"]
+    page_count: int | None = Field(default=None, ge=0)
+    language: str | None = Field(default=None, max_length=16)
+    error_code: str | None = Field(default=None, max_length=100)
+    error_message: str | None = Field(default=None, max_length=1000)

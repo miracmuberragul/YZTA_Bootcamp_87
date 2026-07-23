@@ -3,3 +3,11 @@ import os
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "1536"))
 INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY", "development-internal-key")
+STORAGE_PATH = os.getenv("STORAGE_PATH", "/storage")
+DOCUMENT_SERVICE_URL = os.getenv("DOCUMENT_SERVICE_URL", "http://document-service:8001")
+TOKENIZER_MODEL = os.getenv("TOKENIZER_MODEL", EMBEDDING_MODEL)
+CHUNK_SIZE_TOKENS = int(os.getenv("CHUNK_SIZE_TOKENS", "500"))
+CHUNK_OVERLAP_TOKENS = int(os.getenv("CHUNK_OVERLAP_TOKENS", "75"))
+MAX_EXTRACTED_CHARACTERS = int(os.getenv("MAX_EXTRACTED_CHARACTERS", "5000000"))
+PARSER_VERSION = "v1"
+CHUNKER_VERSION = "v1"

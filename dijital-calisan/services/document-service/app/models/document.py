@@ -42,6 +42,7 @@ class Document(Base):
     category: Mapped[DocumentCategory] = mapped_column(Enum(DocumentCategory, name="document_category"), default=DocumentCategory.other)
     status: Mapped[DocumentStatus] = mapped_column(Enum(DocumentStatus, name="document_status"), default=DocumentStatus.uploading)
     page_count: Mapped[int | None] = mapped_column(Integer)
+    language: Mapped[str | None] = mapped_column(String(16))
     processing_error_code: Mapped[str | None] = mapped_column(String(100))
     processing_error_message: Mapped[str | None] = mapped_column(Text)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
