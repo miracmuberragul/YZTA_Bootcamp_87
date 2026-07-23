@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import HTTPException, UploadFile, status
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 
 from app.config import MAX_UPLOAD_BYTES, STORAGE_PATH
 
@@ -50,12 +52,22 @@ def _validate_content(path: Path, suffix: str) -> str:
 
     valid = False
     if suffix == ".pdf":
-        valid = header.startswith(b"%PDF-")
+        try:
+            if header.startswith(b"%PDF-"):
+                reader = PdfReader(path)
+                valid = not reader.is_encrypted and len(reader.pages) > 0
+        except (PdfReadError, OSError, ValueError):
+            valid = False
     elif suffix == ".docx":
         try:
             with zipfile.ZipFile(path) as archive:
                 names = set(archive.namelist())
-                valid = "[Content_Types].xml" in names and "word/document.xml" in names
+                uncompressed_size = sum(item.file_size for item in archive.infolist())
+                valid = (
+                    "[Content_Types].xml" in names
+                    and "word/document.xml" in names
+                    and uncompressed_size <= 100 * 1024 * 1024
+                )
         except (zipfile.BadZipFile, OSError):
             valid = False
     elif suffix == ".txt":

@@ -18,7 +18,7 @@ Yükleme `202 Accepted` döner. Aynı şirket aynı içeriği tekrar gönderirse
 - En fazla 15 MB (`MAX_UPLOAD_BYTES`).
 - Dosya türü uzantı ve gerçek içerikle doğrulanır.
 - Storage yolu kullanıcı dosya adından üretilmez.
-- Bütün sorgular JWT `company_id` claim'i ile filtrelenir.
+- Bütün sorgular JWT `company_id` claim'i ile filtrelenir; doğrulama için Auth Service ile aynı `SECRET_KEY` kullanılır.
 - Upload/retry/delete yalnız `admin` rolüne açıktır.
 - Ingestion çağrıları `X-Internal-API-Key` ile korunur.
 

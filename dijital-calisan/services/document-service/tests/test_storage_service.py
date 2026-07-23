@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from fastapi import HTTPException, UploadFile
+from pypdf import PdfWriter
 
 from app.services.storage_service import resolve_storage_key, safe_filename, store_upload
 
@@ -19,13 +20,21 @@ def docx_bytes() -> bytes:
     return output.getvalue()
 
 
+def pdf_bytes() -> bytes:
+    output = io.BytesIO()
+    writer = PdfWriter()
+    writer.add_blank_page(width=100, height=100)
+    writer.write(output)
+    return output.getvalue()
+
+
 class StorageServiceTests(unittest.IsolatedAsyncioTestCase):
     def test_filename_drops_path_components(self):
         self.assertEqual(safe_filename("../../secret.txt"), "secret.txt")
         self.assertEqual(safe_filename(r"..\..\secret.txt"), "secret.txt")
 
     async def test_stores_valid_files_under_tenant_directory(self):
-        samples = [("policy.pdf", b"%PDF-1.7\ncontent"), ("guide.docx", docx_bytes()), ("note.txt", "Merhaba".encode())]
+        samples = [("policy.pdf", pdf_bytes()), ("guide.docx", docx_bytes()), ("note.txt", "Merhaba".encode())]
         with tempfile.TemporaryDirectory() as root, patch("app.services.storage_service.STORAGE_PATH", root):
             for filename, content in samples:
                 document_id = uuid.uuid4()
