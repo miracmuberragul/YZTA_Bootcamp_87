@@ -17,9 +17,12 @@ from app.schemas.document_schema import (
     ProcessingStatusUpdate,
     RetryResponse,
     UploadResponse,
+    DocumentCategoryUpdate,
 )
 from app.services.document_service import delete_document, get_document, list_documents, retry_ingestion, upload_document
 from app.services.storage_service import resolve_storage_key
+from app.models.document import Category, Document
+from sqlalchemy import select
 
 router = APIRouter(prefix="/api/v1/documents", tags=["Documents"])
 internal_router = APIRouter(prefix="/internal/v1/documents", tags=["Internal documents"])
@@ -56,6 +59,26 @@ def list_all(
 @router.get("/{document_id}", response_model=DocumentResponse)
 def detail(document_id: uuid.UUID, auth: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
     return get_document(db, document_id, auth.company_id)
+
+
+@router.patch("/{document_id}/category", response_model=DocumentResponse)
+def change_category(
+    document_id: uuid.UUID,
+    payload: DocumentCategoryUpdate,
+    auth: AuthContext = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    document = get_document(db, document_id, auth.company_id)
+    if payload.category_id is not None:
+        category = db.scalar(select(Category).where(
+            Category.id == payload.category_id, Category.company_id == auth.company_id
+        ))
+        if category is None:
+            raise HTTPException(status_code=404, detail="Kategori bulunamadı.")
+    document.category_id = payload.category_id
+    db.commit()
+    db.refresh(document)
+    return document
 
 
 @router.get("/{document_id}/content")

@@ -16,6 +16,7 @@ class DocumentResponse(BaseModel):
     mime_type: str
     file_size_bytes: int
     category: DocumentCategory
+    category_id: uuid.UUID | None = None
     status: DocumentStatus
     page_count: int | None
     language: str | None
@@ -58,3 +59,18 @@ class ProcessingStatusUpdate(BaseModel):
     language: str | None = Field(default=None, max_length=16)
     error_code: str | None = Field(default=None, max_length=100)
     error_message: str | None = Field(default=None, max_length=1000)
+
+
+class CategoryCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    color: str = Field(default="#E85D04", pattern=r"^#[0-9A-Fa-f]{6}$")
+
+
+class CategoryResponse(CategoryCreate):
+    id: uuid.UUID
+    document_count: int = 0
+    created_at: datetime
+
+
+class DocumentCategoryUpdate(BaseModel):
+    category_id: uuid.UUID | None = None

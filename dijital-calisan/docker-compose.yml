@@ -80,12 +80,15 @@ services:
     build: ./services/ingestion-service
     environment:
       DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
-      EMBEDDING_MODEL: text-embedding-3-small
-      EMBEDDING_DIMENSION: "1536"
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_DIMENSION: "1024"
+      HF_TOKEN: ${HF_TOKEN:?HF_TOKEN must be set in .env}
+      HF_EMBEDDING_PROVIDER: ${HF_EMBEDDING_PROVIDER:-hf-inference}
+      HF_TIMEOUT_SECONDS: ${HF_TIMEOUT_SECONDS:-60}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-development-internal-key}
       STORAGE_PATH: /storage
       DOCUMENT_SERVICE_URL: http://document-service:8001
-      TOKENIZER_MODEL: text-embedding-3-small
+      TOKENIZER_MODEL: cl100k_base
       CHUNK_SIZE_TOKENS: "500"
       CHUNK_OVERLAP_TOKENS: "75"
     ports:
@@ -101,7 +104,13 @@ services:
     build: ./services/chat-service
     environment:
       DATABASE_URL: postgresql+psycopg://officeiq:${POSTGRES_PASSWORD:-officeiq_password}@postgres:5432/officeiq
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      SECRET_KEY: ${SECRET_KEY:-development-only-change-me}
+      HF_TOKEN: ${HF_TOKEN:?HF_TOKEN must be set in .env}
+      HF_EMBEDDING_PROVIDER: ${HF_EMBEDDING_PROVIDER:-hf-inference}
+      HF_LLM_PROVIDER: ${HF_LLM_PROVIDER:-auto}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+      EMBEDDING_DIMENSION: "1024"
+      LLM_MODEL: ${LLM_MODEL:-google/gemma-3-12b-it}
     ports:
       - "8003:8003"
     healthcheck:
