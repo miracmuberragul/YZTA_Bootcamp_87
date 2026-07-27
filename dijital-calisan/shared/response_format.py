@@ -1,57 +1,36 @@
-# Shared response format placeholder
 from pydantic import BaseModel
-from typing import Any, Optional, Generic, TypeVar
+from typing import Generic, TypeVar, Optional, Any
+from datetime import datetime, timezone
+import uuid
 
 T = TypeVar("T")
 
-
 class ErrorDetail(BaseModel):
-    code: str
-    message: str
-    details: Optional[Any] = None
+    code: str          # makine-okunur, sabit liste (aşağıda)
+    message: str        # kullanıcıya gösterilecek Türkçe mesaj
 
+class ResponseMeta(BaseModel):
+    request_id: str
+    timestamp: str
 
-class ResponseFormat(BaseModel, Generic[T]):
+class ApiResponse(BaseModel, Generic[T]):
     success: bool
     data: Optional[T] = None
     error: Optional[ErrorDetail] = None
+    meta: ResponseMeta
 
+def success_response(data: Any) -> dict:
+    return {
+        "success": True,
+        "data": data,
+        "error": None,
+        "meta": {"request_id": str(uuid.uuid4()), "timestamp": datetime.now(timezone.utc).isoformat()}
+    }
 
-# ─── Yardımcı fonksiyonlar ───────────────────────────────────────────────────
-
-def success_response(data: Any = None) -> dict:
-    return ResponseFormat(success=True, data=data, error=None).model_dump()
-
-
-def error_response(code: str, message: str, details: Any = None) -> dict:
-    return ResponseFormat(
-        success=False,
-        data=None,
-        error=ErrorDetail(code=code, message=message, details=details)
-    ).model_dump()
-
-
-# ─── Yaygın hata kodları ─────────────────────────────────────────────────────
-
-class ErrorCode:
-    # Auth
-    UNAUTHORIZED        = "UNAUTHORIZED"
-    INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
-    TOKEN_EXPIRED       = "TOKEN_EXPIRED"
-
-    # Doküman
-    DOCUMENT_NOT_FOUND  = "DOCUMENT_NOT_FOUND"
-    INVALID_FILE_TYPE   = "INVALID_FILE_TYPE"
-    FILE_TOO_LARGE      = "FILE_TOO_LARGE"
-
-    # Ingestion
-    INGESTION_FAILED    = "INGESTION_FAILED"
-    PARSING_ERROR       = "PARSING_ERROR"
-
-    # Chat / LLM
-    LLM_API_ERROR       = "LLM_API_ERROR"
-    NO_RELEVANT_DOCS    = "NO_RELEVANT_DOCS"
-
-    # Genel
-    VALIDATION_ERROR    = "VALIDATION_ERROR"
-    INTERNAL_ERROR      = "INTERNAL_ERROR"
+def error_response(code: str, message: str) -> dict:
+    return {
+        "success": False,
+        "data": None,
+        "error": {"code": code, "message": message},
+        "meta": {"request_id": str(uuid.uuid4()), "timestamp": datetime.now(timezone.utc).isoformat()}
+    }
