@@ -4,8 +4,8 @@ import { chatApi } from '../api/chatApi'
 
 interface Source {
   document_name: string
-  page: number
-  excerpt_preview: string
+  chunk_index: number
+  content: string
 }
 
 interface Message {
@@ -35,7 +35,7 @@ export default function ChatPage() {
 
     try {
       const res = await chatApi.ask(question, conversationId)
-      const { answer, sources, conversation_id } = res.data.data
+      const { answer, sources, conversation_id } = res.data
       setConversationId(conversation_id)
       setMessages(prev => [...prev, { role: 'assistant', content: answer, sources }])
     } catch {
@@ -113,8 +113,8 @@ export default function ChatPage() {
                     <div key={j} className="flex items-start gap-2 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2">
                       <FileText size={13} className="text-[#E85D04] flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-gray-700">{s.document_name} — Sayfa {s.page}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{s.excerpt_preview}</p>
+                        <p className="text-xs font-medium text-gray-700">{s.document_name} — Bölüm {s.chunk_index + 1}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{s.content.slice(0, 220)}</p>
                       </div>
                     </div>
                   ))}

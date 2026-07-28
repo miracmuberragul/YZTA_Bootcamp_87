@@ -15,10 +15,10 @@ const nav = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/chat', icon: MessageSquare, label: 'AI Asistan' },
     { to: '/documents', icon: FileText, label: 'Belgelerim' },
-    { to: '/categories', icon: FolderOpen, label: 'Kategoriler' },
-    { to: '/reports', icon: BarChart2, label: 'Raporlar' },
-    { to: '/users', icon: Users, label: 'Kullanıcılar' },
-    { to: '/settings', icon: Settings, label: 'Ayarlar' },
+    { to: '/categories', icon: FolderOpen, label: 'Kategoriler', admin: true },
+    { to: '/reports', icon: BarChart2, label: 'Raporlar', admin: true },
+    { to: '/users', icon: Users, label: 'Kullanıcılar', admin: true },
+    { to: '/settings', icon: Settings, label: 'Ayarlar', admin: true },
 ]
 
 export default function Sidebar() {
@@ -47,7 +47,7 @@ export default function Sidebar() {
 
             {/* Nav */}
             <nav className="flex-1 px-3 space-y-0.5">
-                {nav.map(({ to, icon: Icon, label }) => (
+                {nav.filter(item => !item.admin || user?.role === 'admin').map(({ to, icon: Icon, label }) => (
                     <NavLink
                         key={to}
                         to={to}

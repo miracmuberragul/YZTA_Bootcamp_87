@@ -18,6 +18,7 @@ from app.config import (
 from app.database import SessionLocal
 from app.models.chunk import DocumentChunk, IngestionJob, IngestionStatus
 from app.services.chunking_service import chunk_document
+from app.services.embedding_service import EmbeddingError, embed_texts
 from app.services.parser_service import ParserError, parse_document, resolve_storage_key
 
 logger = logging.getLogger(__name__)
@@ -109,6 +110,8 @@ def process_job(job_id: uuid.UUID) -> None:
         if not chunks:
             raise ParserError("EMPTY_DOCUMENT", "Dokümandan aranabilir chunk üretilemedi.")
 
+        embeddings = embed_texts([chunk.content for chunk in chunks])
+
         with SessionLocal.begin() as db:
             db.execute(
                 delete(DocumentChunk).where(
@@ -131,9 +134,9 @@ def process_job(job_id: uuid.UUID) -> None:
                         char_start=chunk.char_start,
                         char_end=chunk.char_end,
                         token_count=chunk.token_count,
-                        embedding=None,
+                        embedding=embeddings[index],
                     )
-                    for chunk in chunks
+                    for index, chunk in enumerate(chunks)
                 ]
             )
 
@@ -152,6 +155,8 @@ def process_job(job_id: uuid.UUID) -> None:
                 db.commit()
     except ParserError as exc:
         _fail_job(job_id, exc.code, exc.message)
+    except EmbeddingError as exc:
+        _fail_job(job_id, "EMBEDDING_FAILED", str(exc))
     except httpx.HTTPError:
         _fail_job(job_id, "DEPENDENCY_UNAVAILABLE", "Doküman durum servisine ulaşılamadı.")
     except Exception:

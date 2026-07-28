@@ -4,10 +4,12 @@ from fastapi import FastAPI, HTTPException
 from app.config import STORAGE_PATH
 from app.database import database_is_ready
 from app.routers.document_router import internal_router, router as document_router
+from app.routers.category_router import router as category_router
 
 app = FastAPI(title='Document Service')
 app.include_router(document_router)
 app.include_router(internal_router)
+app.include_router(category_router)
 
 @app.get('/health')
 def health():
