@@ -1,6 +1,7 @@
 import axios from 'axios'
-
-export type DocumentCategory = 'procedure' | 'contract' | 'onboarding' | 'meeting_note' | 'other'
+export type DocumentCategory =
+  'procedure' | 'contract' | 'onboarding' | 'meeting_note' |
+  'hr' | 'finance' | 'legal' | 'sales' | 'technical' | 'customer' | 'training' | 'faq' | 'other'
 export type DocumentStatus = 'uploading' | 'uploaded' | 'queued' | 'processing' | 'processed' | 'failed' | 'deleting'
 
 export interface DocumentDto {
@@ -10,6 +11,7 @@ export interface DocumentDto {
   mime_type: string
   file_size_bytes: number
   category: DocumentCategory
+  category_id: string | null
   status: DocumentStatus
   processing_error_code: string | null
   processing_error_message: string | null
@@ -42,6 +44,9 @@ export const documentApi = {
     if (displayName) form.append('display_name', displayName)
     return api.post('', form)
   },
+
+  changeCategory: (id: string, category_id: string | null) =>
+    api.patch(`/${id}/category`, { category_id }),
 
   retry: (id: string) => api.post(`/${id}/retry-ingestion`),
   delete: (id: string) => api.delete(`/${id}`),

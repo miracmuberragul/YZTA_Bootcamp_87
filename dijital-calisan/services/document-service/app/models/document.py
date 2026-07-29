@@ -10,11 +10,19 @@ from app.database import Base
 
 
 class DocumentCategory(str, enum.Enum):
-    procedure = "procedure"
-    contract = "contract"
-    onboarding = "onboarding"
-    meeting_note = "meeting_note"
-    other = "other"
+     procedure = "procedure"
+     contract = "contract"
+     onboarding = "onboarding"
+     meeting_note = "meeting_note"
+     hr = "hr"
+     finance = "finance"
+     legal = "legal"
+     sales = "sales"
+     technical = "technical"
+     customer = "customer"
+     training = "training"
+     faq = "faq"
+     other = "other"
 
 
 class DocumentStatus(str, enum.Enum):
