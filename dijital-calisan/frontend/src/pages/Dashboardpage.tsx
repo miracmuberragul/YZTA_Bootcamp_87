@@ -22,6 +22,7 @@ const CATEGORIES: Array<{ value: DocumentCategory; label: string }> = [
     { value: 'procedure', label: 'Operasyon' },
     { value: 'other', label: 'Diğer' },
 ]
+
 interface Analytics {
     total_documents: number
     total_questions: number
@@ -50,6 +51,7 @@ export default function DashboardPage() {
     const [recentChats, setRecentChats] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [aiInput, setAiInput] = useState('')
+    const [searchInput, setSearchInput] = useState('')
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -79,10 +81,12 @@ export default function DashboardPage() {
         void fetchAll()
     }, [])
 
+    const categoryCount = pieData.filter(p => p.value > 0).length
+
     const stats = [
         { label: 'Toplam Belge', value: loading ? '—' : String(data?.total_documents ?? 0), icon: FileText, bg: '#FFF0E6', color: '#E85D04' },
         { label: 'Soru Cevap', value: loading ? '—' : String(data?.total_questions ?? 0), icon: MessageSquare, bg: '#EEF2FF', color: '#6366F1' },
-        { label: 'Kategoriler', value: loading ? '—' : String(pieData.filter(p => p.value > 0).length), icon: FolderOpen, bg: '#ECFDF5', color: '#10B981' },
+        { label: 'Kategoriler', value: loading ? '—' : String(categoryCount), icon: FolderOpen, bg: '#ECFDF5', color: '#10B981' },
         { label: 'Aktif Kullanıcı', value: loading ? '—' : String(data?.active_users ?? 0), icon: Users, bg: '#FFF7ED', color: '#F59E0B' },
     ]
 
@@ -103,6 +107,11 @@ export default function DashboardPage() {
         navigate(`/chat?q=${encodeURIComponent(aiInput.trim())}`)
     }
 
+    const handleSearch = () => {
+        if (!searchInput.trim()) return
+        navigate(`/documents?search=${encodeURIComponent(searchInput.trim())}`)
+    }
+
     return (
         <div className="flex h-full">
             <div className="flex-1 p-6 overflow-auto">
@@ -116,8 +125,19 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 w-64">
                         <span className="text-gray-400 text-sm">🔍</span>
-                        <input placeholder="Belgelerde ara..." className="flex-1 text-sm bg-transparent outline-none text-gray-600" />
-                        <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">⌘K</span>
+                        <input
+                            value={searchInput}
+                            onChange={e => setSearchInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                            placeholder="Belgelerde ara..."
+                            className="flex-1 text-sm bg-transparent outline-none text-gray-600"
+                        />
+                        <span
+                            onClick={handleSearch}
+                            className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded cursor-pointer hover:bg-orange-100 hover:text-[#E85D04]"
+                        >
+                            ⌘K
+                        </span>
                     </div>
                 </div>
 
@@ -194,9 +214,8 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Alt kısım — Son belgeler + Son sorular */}
+                {/* Alt kısım */}
                 <div className="grid grid-cols-2 gap-4">
-                    {/* Son eklenen belgeler */}
                     <div className="bg-white rounded-2xl p-5 border border-gray-100">
                         <div className="flex items-center justify-between mb-4">
                             <p className="font-semibold text-gray-800 text-sm">Son Eklenen Belgeler</p>
@@ -213,7 +232,7 @@ export default function DashboardPage() {
                         ) : (
                             <div className="space-y-3">
                                 {recentDocs.map(doc => (
-                                    <div key={doc.id} className="flex items-center gap-3 group">
+                                    <div key={doc.id} className="flex items-center gap-3">
                                         <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
                                             <FileText size={14} className="text-[#E85D04]" />
                                         </div>
@@ -230,7 +249,6 @@ export default function DashboardPage() {
                         )}
                     </div>
 
-                    {/* Son sorular */}
                     <div className="bg-white rounded-2xl p-5 border border-gray-100">
                         <div className="flex items-center justify-between mb-4">
                             <p className="font-semibold text-gray-800 text-sm">Son Sorular</p>
@@ -288,22 +306,15 @@ export default function DashboardPage() {
                         placeholder="Sorunuzu yazın..."
                         className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#E85D04] focus:border-transparent"
                     />
-                    <button
-                        onClick={handleAiSubmit}
-                        className="w-9 h-9 bg-[#E85D04] rounded-xl flex items-center justify-center text-white hover:bg-[#C44D00] transition-colors"
-                    >
+                    <button onClick={handleAiSubmit} className="w-9 h-9 bg-[#E85D04] rounded-xl flex items-center justify-center text-white hover:bg-[#C44D00] transition-colors">
                         →
                     </button>
                 </div>
 
-                {/* Öneri sorular */}
                 <div className="space-y-2 mb-6">
                     {['Yıllık izin hakkım kaç gün?', 'Masraf beyanı nasıl yapılır?', 'Şirket politikası nedir?'].map(q => (
-                        <button
-                            key={q}
-                            onClick={() => navigate(`/chat?q=${encodeURIComponent(q)}`)}
-                            className="w-full text-left text-xs text-gray-500 bg-gray-50 hover:bg-orange-50 hover:text-[#E85D04] px-3 py-2 rounded-lg transition-colors"
-                        >
+                        <button key={q} onClick={() => navigate(`/chat?q=${encodeURIComponent(q)}`)}
+                            className="w-full text-left text-xs text-gray-500 bg-gray-50 hover:bg-orange-50 hover:text-[#E85D04] px-3 py-2 rounded-lg transition-colors">
                             {q}
                         </button>
                     ))}
@@ -311,17 +322,13 @@ export default function DashboardPage() {
 
                 <div className="flex-1" />
 
-                {/* Hızlı işlemler */}
                 <div>
                     <p className="font-semibold text-gray-800 text-sm mb-3">Hızlı İşlemler</p>
                     <div className="grid grid-cols-2 gap-2">
                         {quickActions.map(({ icon: Icon, label, onClick, color, bg }) => (
-                            <button
-                                key={label}
-                                onClick={onClick}
+                            <button key={label} onClick={onClick}
                                 className="flex flex-col items-center gap-2 p-3 rounded-xl border border-gray-100 hover:shadow-sm transition-all"
-                                style={{ background: bg + '40' }}
-                            >
+                                style={{ background: bg + '40' }}>
                                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: bg }}>
                                     <Icon size={16} style={{ color }} />
                                 </div>

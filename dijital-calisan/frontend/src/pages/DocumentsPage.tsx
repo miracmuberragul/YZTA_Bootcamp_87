@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { Download, FileText, FolderOpen, RefreshCw, Trash2, Upload } from 'lucide-react'
 import { DocumentCategory, DocumentDto, DocumentStatus, documentApi } from '../api/documentApi'
 import { Category, managementApi } from '../api/managementApi'
 import { useAuth } from '../hooks/useAuth'
 
-const CATEGORIES = [
+const CATEGORIES: Array<{ value: DocumentCategory; label: string }> = [
   { value: 'hr', label: 'İnsan Kaynakları' },
   { value: 'finance', label: 'Finans' },
   { value: 'legal', label: 'Hukuk' },
@@ -20,8 +21,8 @@ const CATEGORIES = [
 ]
 
 const STATUS_LABELS: Record<DocumentStatus, string> = {
-  uploading: 'Yükleniyor', uploaded: 'Kuyruk bekliyor', queued: 'Kuyrukta', processing: 'İşleniyor',
-  processed: 'Hazır', failed: 'Başarısız', deleting: 'Siliniyor',
+  uploading: 'Yükleniyor', uploaded: 'Kuyruk bekliyor', queued: 'Kuyrukta',
+  processing: 'İşleniyor', processed: 'Hazır', failed: 'Başarısız', deleting: 'Siliniyor',
 }
 
 function errorMessage(error: unknown, fallback: string) {
@@ -31,14 +32,16 @@ function errorMessage(error: unknown, fallback: string) {
 
 export default function DocumentsPage() {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const isAdmin = user?.role === 'admin'
   const [docs, setDocs] = useState<DocumentDto[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
-  const [category, setCategory] = useState<DocumentCategory>('procedure')
+  const [category, setCategory] = useState<DocumentCategory>('hr')
   const [statusFilter, setStatusFilter] = useState<DocumentStatus | ''>('')
   const [categoryFilter, setCategoryFilter] = useState<DocumentCategory | ''>('')
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') ?? '')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [total, setTotal] = useState(0)
@@ -50,8 +53,7 @@ export default function DocumentsPage() {
     setError('')
     try {
       const response = await documentApi.list({
-        page,
-        page_size: 20,
+        page, page_size: 20,
         status: statusFilter || undefined,
         category: categoryFilter || undefined,
       })
@@ -128,6 +130,11 @@ export default function DocumentsPage() {
     }
   }
 
+  // Frontend'de arama filtresi
+  const filteredDocs = docs.filter(doc =>
+    doc.display_name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
     <div className="p-6 overflow-y-auto h-full">
       <div className="mb-6">
@@ -141,51 +148,47 @@ export default function DocumentsPage() {
           <p className="text-gray-700 font-medium mb-1">Belge Yükle</p>
           <p className="text-gray-400 text-sm mb-4">Metin tabanlı PDF, DOCX veya UTF-8 TXT — en fazla 15 MB</p>
           <div className="flex items-center justify-center gap-3">
-            <select
-              value={category}
-              onChange={event => setCategory(event.target.value as DocumentCategory)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-            >
+            <select value={category} onChange={e => setCategory(e.target.value as DocumentCategory)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm">
               {CATEGORIES.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="bg-[#E85D04] hover:bg-[#C44D00] text-white text-sm px-4 py-2 rounded-lg disabled:opacity-60"
-            >
+            <button onClick={() => fileRef.current?.click()} disabled={uploading}
+              className="bg-[#E85D04] hover:bg-[#C44D00] text-white text-sm px-4 py-2 rounded-lg disabled:opacity-60">
               {uploading ? 'Yükleniyor…' : 'Dosya Seç'}
             </button>
             <input ref={fileRef} type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleUpload} />
           </div>
-          {error && <p role="alert" className="text-red-500 text-sm mt-3">{error}</p>}
+          {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
         </div>
       ) : (
         <div className="bg-blue-50 border border-blue-100 text-blue-700 rounded-xl px-4 py-3 mb-6 text-sm">
-          Dokümanları görüntüleyebilirsiniz. Yükleme, tekrar deneme ve silme işlemleri yalnızca admin kullanıcılar tarafından yapılabilir.
+          Dokümanları görüntüleyebilirsiniz. Yükleme ve silme işlemleri yalnızca admin kullanıcılar tarafından yapılabilir.
         </div>
       )}
 
       <div className="bg-white rounded-xl border border-gray-100">
-        <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-100 flex-wrap">
           <p className="font-medium text-gray-800 text-sm">Belgeler ({total})</p>
-          <div className="flex items-center gap-2">
-            <select
-              value={categoryFilter}
-              onChange={event => { setCategoryFilter(event.target.value as DocumentCategory | ''); setPage(1) }}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs"
-            >
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Belge ara..."
+              className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#E85D04] w-40"
+            />
+            <select value={categoryFilter}
+              onChange={e => { setCategoryFilter(e.target.value as DocumentCategory | ''); setPage(1) }}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs">
               <option value="">Tüm kategoriler</option>
               {CATEGORIES.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
-            <select
-              value={statusFilter}
-              onChange={event => { setStatusFilter(event.target.value as DocumentStatus | ''); setPage(1) }}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs"
-            >
+            <select value={statusFilter}
+              onChange={e => { setStatusFilter(e.target.value as DocumentStatus | ''); setPage(1) }}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-xs">
               <option value="">Tüm durumlar</option>
               {Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <button onClick={() => void fetchDocs()} className="p-1.5 text-[#E85D04]" aria-label="Belgeleri yenile">
+            <button onClick={() => void fetchDocs()} className="p-1.5 text-[#E85D04]">
               <RefreshCw size={15} />
             </button>
           </div>
@@ -193,14 +196,16 @@ export default function DocumentsPage() {
 
         {loading ? (
           <div className="p-8 text-center text-gray-400 text-sm">Yükleniyor…</div>
-        ) : docs.length === 0 ? (
+        ) : filteredDocs.length === 0 ? (
           <div className="p-8 text-center">
             <FolderOpen size={32} className="text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm">Bu filtrede doküman bulunamadı.</p>
+            <p className="text-gray-400 text-sm">
+              {searchTerm ? `"${searchTerm}" için sonuç bulunamadı.` : 'Bu filtrede doküman bulunamadı.'}
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {docs.map(doc => (
+            {filteredDocs.map(doc => (
               <div key={doc.id} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
                 <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
                   <FileText size={16} className="text-[#E85D04]" />
@@ -215,18 +220,12 @@ export default function DocumentsPage() {
                   )}
                 </div>
 
-                {/* Dinamik kategori atama */}
                 {isAdmin && categories.length > 0 && (
-                  <select
-                    value={(doc as any).category_id ?? ''}
+                  <select value={(doc as any).category_id ?? ''}
                     onChange={e => void handleCategoryChange(doc.id, e.target.value)}
-                    className="border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-600 max-w-32"
-                    title="Kategori ata"
-                  >
-                    <option value="">Kategori seç</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
+                    className="border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-600 max-w-32">
+                    <option value="">Etiket seç</option>
+                    {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                   </select>
                 )}
 
@@ -234,15 +233,15 @@ export default function DocumentsPage() {
                   {new Date(doc.created_at).toLocaleDateString('tr-TR')}
                 </p>
                 {isAdmin && (doc.status === 'failed' || doc.status === 'uploaded') && (
-                  <button onClick={() => void handleRetry(doc.id)} className="p-1.5 hover:bg-orange-50 rounded-lg" aria-label="Tekrar dene">
+                  <button onClick={() => void handleRetry(doc.id)} className="p-1.5 hover:bg-orange-50 rounded-lg">
                     <RefreshCw size={14} className="text-orange-500" />
                   </button>
                 )}
-                <button onClick={() => void handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg" aria-label="İndir">
+                <button onClick={() => void handleDownload(doc)} className="p-1.5 hover:bg-gray-100 rounded-lg">
                   <Download size={14} className="text-gray-500" />
                 </button>
                 {isAdmin && (
-                  <button onClick={() => void handleDelete(doc)} className="p-1.5 hover:bg-red-50 rounded-lg" aria-label="Sil">
+                  <button onClick={() => void handleDelete(doc)} className="p-1.5 hover:bg-red-50 rounded-lg">
                     <Trash2 size={14} className="text-red-400" />
                   </button>
                 )}
@@ -253,9 +252,9 @@ export default function DocumentsPage() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-sm">
-            <button disabled={page === 1} onClick={() => setPage(current => current - 1)} className="text-[#E85D04] disabled:text-gray-300">Önceki</button>
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="text-[#E85D04] disabled:text-gray-300">Önceki</button>
             <span className="text-gray-500">{page} / {totalPages}</span>
-            <button disabled={page === totalPages} onClick={() => setPage(current => current + 1)} className="text-[#E85D04] disabled:text-gray-300">Sonraki</button>
+            <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="text-[#E85D04] disabled:text-gray-300">Sonraki</button>
           </div>
         )}
       </div>
