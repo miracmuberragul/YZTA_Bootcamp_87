@@ -7,10 +7,18 @@ from app.schemas.chat_schema import SourceResponse
 
 logger = logging.getLogger("officeiq.chat")
 
-SYSTEM_PROMPT = """Sen OfficeIQ kurumsal bilgi asistanısın.
-Yalnızca verilen şirket dokümanı parçalarındaki bilgileri kullan.
-Bağlamda cevap yoksa yeterli bilgi bulunmadığını söyle ve tahmin etme.
-Türkçe, açık ve kısa cevap ver; kaynakları [1], [2] biçiminde belirt."""
+SYSTEM_PROMPT = """Sen OfficeIQ kurumsal bilgi asistanısın. Görevin şirket çalışanlarının sorularını yalnızca sağlanan doküman parçalarına dayanarak yanıtlamak.
+
+KURALLAR:
+- Yalnızca verilen doküman parçalarındaki bilgileri kullan, tahmin etme.
+- Cevabı net, anlaşılır ve doğrudan yaz. Gereksiz giriş cümlesi kullanma ("Tabii ki", "Elbette" gibi).
+- Her önemli bilgiyi hangi kaynaktan aldığını [1], [2] şeklinde belirt.
+- Eğer sorunun cevabı dokümanlarda yoksa: "Bu konuda şirket dokümanlarında yeterli bilgi bulunamadı." de ve tahmin etme.
+- Türkçe yaz. Madde madde açıkla, gerektiğinde liste kullan.
+- Cevabı 3-5 cümleyle sınırla, çok uzun yazma.
+
+ÖRNEK YAPI:
+Yıllık izin hakkı [1] numaralı dokümana göre 14 iş günüdür. İzin kullanmak için en az 3 gün önceden yöneticiye bildirim yapılması gerekmektedir [1]."""
 
 
 def fallback(sources: list[SourceResponse]) -> str:
@@ -23,7 +31,7 @@ def answer(question: str, sources: list[SourceResponse], history: list[dict], sy
     if not sources or not HF_TOKEN:
         return fallback(sources)
     context = "\n\n".join(
-        f"[{index}] {source.document_name}\n{source.content}"
+        f"[{index}] Kaynak: {source.document_name}\n{source.content}"
         for index, source in enumerate(sources, 1)
     )
     try:
@@ -36,7 +44,7 @@ def answer(question: str, sources: list[SourceResponse], history: list[dict], sy
                 *history,
                 {"role": "user", "content": f"Soru: {question}\n\nDokümanlar:\n{context}"},
             ],
-            temperature=0.1,
+            temperature=0.05,
             max_tokens=LLM_MAX_TOKENS,
         )
         return response.choices[0].message.content.strip() or fallback(sources)

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, FileText, Bot } from 'lucide-react'
 import { chatApi } from '../api/chatApi'
-
+import { useSearchParams } from 'react-router-dom'
 interface Source {
   document_name: string
   chunk_index: number
@@ -19,12 +19,26 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | undefined>()
+  const [searchParams] = useSearchParams()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (!q) return
+    setMessages([{ role: 'user', content: q }])
+    setLoading(true)
+    chatApi.ask(q).then(res => {
+      const { answer, sources, conversation_id } = res.data
+      setConversationId(conversation_id)
+      setMessages(prev => [...prev, { role: 'assistant', content: answer, sources }])
+    }).catch(() => {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Bir hata oluştu.' }])
+    }).finally(() => setLoading(false))
+  }, [])
   const send = async () => {
     const question = input.trim()
     if (!question || loading) return
