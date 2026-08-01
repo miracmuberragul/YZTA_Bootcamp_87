@@ -70,6 +70,7 @@ KOBİ'lerde kurumsal bilgi; e-postalarda, paylaşılan dosyalarda, Excel tablola
 ---
 
 # Sprint 1
+<details>
 
 **Sprint 1 Tarihleri:** 19 Haziran 2026 — 5 Temmuz 2026
 
@@ -129,9 +130,11 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 - Sprint 1'de resmi sprint board ve daily scrum pratiği tam oturtulamadı; Sprint 2'den itibaren Trello board aktif kullanılacak
 - Görev dağılımı Sprint 2 planning'de daha net tanımlanacak
 ---
+</details>
 
 # Sprint 2
-
+<details>
+ 
 **Sprint 2 Tarihleri:** 6 Temmuz 2026 — 19 Temmuz 2026
 
 ## Backlog Düzeni ve Story Seçimleri
@@ -207,9 +210,11 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 - Bu sprintte aktif kod geliştirme yapılamadı; Sprint 3'te geliştirme temposunun artırılması hedefleniyor
 - Branch stratejisi geç netleşti; Sprint 3'te her üye kendi servisinde baştan çalışacak
 - Docker Compose kurulumu Sprint 2'den Sprint 3'e devredildi, bu gecikme servis entegrasyonunu sıkıştırabilir; Sprint 3'ün ilk günleri bu göreve ayrılacak
+</details>
 
 # Sprint 3
 
+<details>
 **Sprint 3 Tarihleri:** 20 Temmuz 2026 — 2 Ağustos 2026
 
 ## Backlog Düzeni ve Story Seçimleri
