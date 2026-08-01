@@ -1,1 +1,18 @@
-EMBEDDING_MODEL = 'sentence-transformers'
+import os
+
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "1024"))
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+HF_EMBEDDING_PROVIDER = os.getenv("HF_EMBEDDING_PROVIDER", "hf-inference")
+HF_TIMEOUT_SECONDS = float(os.getenv("HF_TIMEOUT_SECONDS", "60"))
+HF_MAX_RETRIES = int(os.getenv("HF_MAX_RETRIES", "3"))
+EMBEDDING_BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "16"))
+INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY", "development-internal-key")
+STORAGE_PATH = os.getenv("STORAGE_PATH", "/storage")
+DOCUMENT_SERVICE_URL = os.getenv("DOCUMENT_SERVICE_URL", "http://document-service:8001")
+TOKENIZER_MODEL = os.getenv("TOKENIZER_MODEL", "cl100k_base")
+CHUNK_SIZE_TOKENS = int(os.getenv("CHUNK_SIZE_TOKENS", "500"))
+CHUNK_OVERLAP_TOKENS = int(os.getenv("CHUNK_OVERLAP_TOKENS", "75"))
+MAX_EXTRACTED_CHARACTERS = int(os.getenv("MAX_EXTRACTED_CHARACTERS", "5000000"))
+PARSER_VERSION = "v1"
+CHUNKER_VERSION = "v1"

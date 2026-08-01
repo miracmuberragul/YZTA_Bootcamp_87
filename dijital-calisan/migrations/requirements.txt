@@ -1,0 +1,4 @@
+alembic==1.16.4
+SQLAlchemy==2.0.41
+psycopg[binary]==3.2.9
+pgvector==0.4.1
