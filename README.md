@@ -72,6 +72,7 @@ KOBİ'lerde kurumsal bilgi; e-postalarda, paylaşılan dosyalarda, Excel tablola
 # Sprint 1
 <details>
 
+
 **Sprint 1 Tarihleri:** 19 Haziran 2026 — 5 Temmuz 2026
 
 ## Backlog Düzeni ve Story Seçimleri
@@ -134,6 +135,7 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 
 # Sprint 2
 <details>
+
  
 **Sprint 2 Tarihleri:** 6 Temmuz 2026 — 19 Temmuz 2026
 
@@ -215,6 +217,8 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 # Sprint 3
 
 <details>
+
+ 
 **Sprint 3 Tarihleri:** 20 Temmuz 2026 — 2 Ağustos 2026
 
 ## Backlog Düzeni ve Story Seçimleri
