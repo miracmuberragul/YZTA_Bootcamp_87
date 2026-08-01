@@ -207,3 +207,78 @@ Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Ca
 - Bu sprintte aktif kod geliştirme yapılamadı; Sprint 3'te geliştirme temposunun artırılması hedefleniyor
 - Branch stratejisi geç netleşti; Sprint 3'te her üye kendi servisinde baştan çalışacak
 - Docker Compose kurulumu Sprint 2'den Sprint 3'e devredildi, bu gecikme servis entegrasyonunu sıkıştırabilir; Sprint 3'ün ilk günleri bu göreve ayrılacak
+
+# Sprint 3
+
+**Sprint 3 Tarihleri:** 20 Temmuz 2026 — 2 Ağustos 2026
+
+## Backlog Düzeni ve Story Seçimleri
+
+Sprint 3'ün odak noktası tüm servislerin entegrasyonunun tamamlanması, arayüz geliştirmeleri ve ürünün demo'ya hazır hale getirilmesiydi. Sprint başında iş kapasitesi göz önünde bulundurularak görevler öncelik sırasına göre planlandı.
+
+Bu sprint kapsamında tamamlanan işler:
+
+- Geliştirilen modüller (BGE-M3 embedding, pgvector retrieval, Gemma 3 12B entegrasyonu, kullanıcıya özel sohbet geçmişi) mevcut projeye entegre edildi
+- Chat yanıt kalitesi iyileştirildi: sistem prompt'u güçlendirildi, temperature 0.05'e düşürüldü, context formatı zenginleştirildi
+- Dashboard mock datadan gerçek API'ye bağlandı; istatistik kartları, grafik ve pasta grafik canlı veri gösteriyor
+- Dashboard'a "Son Eklenen Belgeler" ve "Son Sorular" bölümleri eklendi
+- Dashboard arama çubuğu belgeler sayfasına yönlendirecek şekilde çalışır hale getirildi
+- Kategoriler sayfası yeniden tasarlandı: sistem kategorileri ve belge sayıları gösteriliyor, kategoriye tıklayınca belgeler listeleniyor
+- Belge kategorileri genişletildi: İnsan Kaynakları, Finans, Hukuk, Satış, Teknik Dokümanlar, Müşteri Bilgileri, Eğitim, SSS kategorileri eklendi
+- PostgreSQL enum migration yazıldı ve uygulandı
+- Arayüz hataları giderildi; hızlı işlemler, AI asistan paneli ve navigasyon düzeltildi
+- Belgeler sayfasına arama, durum ve kategori filtresi eklendi
+- Admin/personel rol ayrımı arayüzde uygulandı
+
+Story'ler yapılacak task'lere bölünmüştür. Trello Board'da gözüken yeşil item'lar tamamlanan işleri (Done), gri item'lar devam eden işleri (In Progress) temsil etmektedir.
+
+## Daily Scrum
+
+Daily Scrum toplantıları bu sprint boyunca Slack üzerinden gerçekleştirildi. Takım üyeleri düzenli olarak "Dün ne yaptım / Bugün ne yapacağım / Engel var mı?" formatında paylaşımlarını iletti.
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/spritn3_daily1.png" width="500"/>
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/sprint3_daily2.png" width="500"/>
+
+## Sprint Board Güncellemesi
+
+Sprint 3 boyunca Trello board aktif olarak güncellendi. Görevler ilerleme durumlarına göre To Do, In Progress ve Done sütunlarında takip edilmektedir.
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/trello_sprint3.png" width="700"/>
+
+## Ürün Durumu
+
+Sprint 3 sonunda ürün uçtan uca çalışır durumda demo'ya hazırdır. Kullanıcı sisteme giriş yapabilmekte, şirket dokümanlarını kategorilere göre yükleyebilmekte ve AI asistana doğal dilde soru sorarak kaynaklı cevap alabilmektedir.
+
+**Dashboard:**
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/dahboard.png" width="700"/>
+
+**AI Asistan — Chat:**
+
+<img src="https://raw.githubusercontent.com/miracmuberragul/YZTA_Bootcamp_87/main/ProjectManagement/chat.png" width="700"/>
+
+## Sprint Review
+
+**Alınan kararlar:**
+
+- Tüm servisler (auth, document, ingestion, chat, gateway, frontend) tek komutla (`docker-compose up`) ayağa kalkıyor ve sağlıklı çalışıyor
+- Chat servisi Gemma 3 12B ile entegre şekilde kaynaklı ve Türkçe cevap üretiyor; token bittiğinde retrieval sonucunu fallback olarak döndürüyor
+- Dashboard canlı verilerle dolduruluyor: 29 belge, 13 soru, 9 kategori, 3 aktif kullanıcı
+- Belge kategorileri şirketin Drive klasör yapısına uygun hale getirildi
+- Demo senaryosu belirlendi: giriş → belge görüntüleme → soru sorma → kaynaklı cevap
+- Ürün teslim formu ve demo videosu Sprint 3 çıktısı olarak hazırlanacak
+
+Sprint Review katılımcıları: Miraç Müberra Gül, Mihrinur İlunt, Ömer Can Gizik
+
+## Sprint Retrospective
+
+**İyi gidenler:**
+- Üç kişinin farklı alanlarda paralel çalışması (frontend, backend entegrasyonu, chat kalitesi) sprint süresini verimli kullandırdı
+- Ayrı geliştirilen modüllerin projeye entegrasyonu beklenenden sorunsuz tamamlandı
+- Chat yanıt kalitesi sprint başına göre belirgin biçimde iyileşti; gerçek şirket dokümanlarından kaynaklı, anlamlı cevaplar alınıyor
+- Dashboard'un canlı veriye bağlanması ürünü çok daha inandırıcı kıldı
+
+**Geliştirilebilecekler:**
+- Branch stratejisi sprint ortasında netleşti; daha erken belirlenmiş olsaydı merge çakışmaları azalabilirdi
+- Demo videosu ve teslim formu son 2 güne bırakıldı; bir sonraki projede bu görevler sprint planlamasına daha erken alınmalı
